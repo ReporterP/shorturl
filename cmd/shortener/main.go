@@ -29,7 +29,7 @@ func shortingURL(res http.ResponseWriter, req *http.Request) {
         }
         
         res.Header().Set("content-type", "text/plain")
-        res.WriteHeader(http.StatusOK)
+        res.WriteHeader(http.StatusCreated)
 
         res.Write([]byte(urlMap[hashShortString].shortURL))
     } else { 
