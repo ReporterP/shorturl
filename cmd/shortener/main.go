@@ -47,7 +47,7 @@ func main() {
     r.Use(middleware.Logger)
     r.Use(middleware.Recoverer)
     r.Post("/", shortingURL)
-    r.Get("/{shorturl}", getUrl)
+    r.Get("/{shorturl}", getURL)
 
     err := http.ListenAndServe(`:8080`, r)
     if err != nil {
