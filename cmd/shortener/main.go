@@ -34,7 +34,7 @@ func shortingURL(res http.ResponseWriter, req *http.Request) {
     res.Write([]byte(urlMap[hashShortString].shortURL))
 }
 
-func getUrl(res http.ResponseWriter, req *http.Request) { 
+func getURL(res http.ResponseWriter, req *http.Request) { 
     shorturl := urlMap[chi.URLParam(req, "shorturl")].URL
     res.Header().Add("location", shorturl)
     res.WriteHeader(http.StatusTemporaryRedirect)
