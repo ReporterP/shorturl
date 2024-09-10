@@ -27,7 +27,7 @@ func shortingURL(res http.ResponseWriter, req *http.Request) {
 
     urlMap[hashShortString] = ShortURL{
         URL: url,
-        shortURL: baseaddr + hashShortString,
+        shortURL: baseaddr + "/" + hashShortString,
     }
     
     res.Header().Set("content-type", "text/plain")
