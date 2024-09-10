@@ -11,7 +11,7 @@ var FlagRunBaseAddr string
 // и сохраняет их значения в соответствующих переменных
 func ParseFlags() {
     flag.StringVar(&FlagRunAddrAndPort, "a", "", "address and port to run server")
-    flag.StringVar(&FlagRunBaseAddr, "d", "", "base address to run server")
+    flag.StringVar(&FlagRunBaseAddr, "b", "", "base address to run server")
     // парсим переданные серверу аргументы в зарегистрированные переменные
     flag.Parse()
 }
