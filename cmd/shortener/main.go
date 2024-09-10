@@ -18,8 +18,8 @@ type ShortURL struct {
     shortURL  string
 }
 
-var SERVER_ADDRESS string
-var BASE_URL string
+var serverAddress string
+var baseUrl string
 var urlMap = make(map[string]ShortURL)
 
 func shortingURL(res http.ResponseWriter, req *http.Request) {
@@ -31,7 +31,7 @@ func shortingURL(res http.ResponseWriter, req *http.Request) {
 
     urlMap[hashShortString] = ShortURL{
         URL: url,
-        shortURL: BASE_URL + "/" + hashShortString,
+        shortURL: baseUrl + "/" + hashShortString,
     }
     
     res.Header().Set("content-type", "text/plain")
@@ -54,12 +54,12 @@ func main() {
     }
     config.ParseFlags()
 
-    if SERVER_ADDRESS = cfg.ServerAddress; cfg.ServerAddress == "" {
-        SERVER_ADDRESS = config.FlagRunAddrAndPort
+    if serverAddress = cfg.ServerAddress; cfg.ServerAddress == "" {
+        serverAddress = config.FlagRunAddrAndPort
     }
 
-    if BASE_URL = cfg.BaseURL; cfg.BaseURL == "" { 
-        BASE_URL = config.FlagRunBaseAddr
+    if baseUrl = cfg.BaseURL; cfg.BaseURL == "" { 
+        baseUrl = config.FlagRunBaseAddr
     }
 
     r := chi.NewRouter()
@@ -70,7 +70,7 @@ func main() {
     r.Post("/", shortingURL)
     r.Get("/{shorturl}", getURL)
 
-    err := http.ListenAndServe(SERVER_ADDRESS, r)
+    err := http.ListenAndServe(serverAddress, r)
     if err != nil {
         panic(err)
     }
