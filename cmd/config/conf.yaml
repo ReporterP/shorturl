@@ -1,0 +1,2 @@
+addressandport: localhost:8888        # APP_NAME
+baseaddress:    http://localhost:8000/ # APP_PORT

@@ -6,7 +6,8 @@ import (
 	"io"
 	"net/http"
 
-    "github.com/go-chi/chi/v5"
+	"github.com/ReporterP/shorturl/cmd/config"
+	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )
 
@@ -26,7 +27,7 @@ func shortingURL(res http.ResponseWriter, req *http.Request) {
 
     urlMap[hashShortString] = ShortURL{
         URL: url,
-        shortURL: "http://localhost:8080/"+hashShortString,
+        shortURL: baseaddr + hashShortString,
     }
     
     res.Header().Set("content-type", "text/plain")
@@ -40,7 +41,27 @@ func getURL(res http.ResponseWriter, req *http.Request) {
     res.WriteHeader(http.StatusTemporaryRedirect)
 }
 
+var baseaddr string
 func main() {
+    var addrandport string
+
+    appConfig := &config.AppConfig{}
+
+    appConfig.ReadYaml("cmd/config/conf.yaml")
+    config.ParseFlags()
+
+    if config.FlagRunAddrAndPort != "" { 
+        addrandport = config.FlagRunAddrAndPort 
+    } else {
+        addrandport = appConfig.AddressAndPort
+    }
+
+    if config.FlagRunBaseAddr != "" { 
+        baseaddr = config.FlagRunBaseAddr 
+    } else {
+        baseaddr = appConfig.BaseAddress
+    }
+
     r := chi.NewRouter()
     r.Use(middleware.RequestID)
     r.Use(middleware.RealIP)
@@ -49,7 +70,7 @@ func main() {
     r.Post("/", shortingURL)
     r.Get("/{shorturl}", getURL)
 
-    err := http.ListenAndServe(`:8080`, r)
+    err := http.ListenAndServe(addrandport, r)
     if err != nil {
         panic(err)
     }
