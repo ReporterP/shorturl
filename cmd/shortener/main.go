@@ -4,11 +4,13 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"io"
+	"log"
 	"net/http"
 
 	"github.com/ReporterP/shorturl/cmd/config"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/caarlos0/env/v6"
 )
 
 type ShortURL struct {
@@ -16,6 +18,8 @@ type ShortURL struct {
     shortURL  string
 }
 
+var SERVER_ADDRESS string
+var BASE_URL string
 var urlMap = make(map[string]ShortURL)
 
 func shortingURL(res http.ResponseWriter, req *http.Request) {
@@ -27,7 +31,7 @@ func shortingURL(res http.ResponseWriter, req *http.Request) {
 
     urlMap[hashShortString] = ShortURL{
         URL: url,
-        shortURL: baseaddr + "/" + hashShortString,
+        shortURL: BASE_URL + "/" + hashShortString,
     }
     
     res.Header().Set("content-type", "text/plain")
@@ -41,25 +45,21 @@ func getURL(res http.ResponseWriter, req *http.Request) {
     res.WriteHeader(http.StatusTemporaryRedirect)
 }
 
-var baseaddr string
+
 func main() {
-    var addrandport string
-
-    appConfig := &config.AppConfig{}
-
-    appConfig.ReadYaml("cmd/config/conf.yaml")
+    var cfg config.Config
+    errEnv := env.Parse(&cfg)
+    if errEnv != nil {
+        log.Fatal(errEnv)
+    }
     config.ParseFlags()
 
-    if config.FlagRunAddrAndPort != "" { 
-        addrandport = config.FlagRunAddrAndPort 
-    } else {
-        addrandport = appConfig.AddressAndPort
+    if SERVER_ADDRESS = cfg.ServerAddress; cfg.ServerAddress == "" {
+        SERVER_ADDRESS = config.FlagRunAddrAndPort
     }
 
-    if config.FlagRunBaseAddr != "" { 
-        baseaddr = config.FlagRunBaseAddr 
-    } else {
-        baseaddr = appConfig.BaseAddress
+    if BASE_URL = cfg.BaseURL; cfg.BaseURL == "" { 
+        BASE_URL = config.FlagRunBaseAddr
     }
 
     r := chi.NewRouter()
@@ -70,7 +70,7 @@ func main() {
     r.Post("/", shortingURL)
     r.Get("/{shorturl}", getURL)
 
-    err := http.ListenAndServe(addrandport, r)
+    err := http.ListenAndServe(SERVER_ADDRESS, r)
     if err != nil {
         panic(err)
     }
