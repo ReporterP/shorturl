@@ -1,3 +1,7 @@
 package main
 
-func main() {}
+import "github.com/ReporterP/shorturl/internal/app"
+
+func main() {
+    app.Run()
+} 
