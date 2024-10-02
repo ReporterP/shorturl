@@ -5,13 +5,17 @@ import (
 	"net/http"
 
 	"github.com/ReporterP/shorturl/internal/config"
+	"github.com/ReporterP/shorturl/internal/logger"
 	"github.com/caarlos0/env/v6"
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
+
+	"go.uber.org/zap"
 )
+
 
 func Run() {
 	var cfg config.Config
+
 	errEnv := env.Parse(&cfg)
 	if errEnv != nil {
 		log.Fatal(errEnv)
@@ -26,11 +30,21 @@ func Run() {
 		baseURL = config.FlagRunBaseAddr
 	}
 
+	var loglevel string
+	
+	if loglevel = cfg.EnvLogLevel; cfg.EnvLogLevel == "" {
+		loglevel = config.FlagLogLevel
+	}
+
+	if errlog := logger.Initialize(loglevel); errlog != nil {
+        panic(errlog) 
+    }
+	
+	logger.Log.Info("Running server", zap.String("address", serverAddress))
+
 	r := chi.NewRouter()
-	r.Use(middleware.RequestID)
-	r.Use(middleware.RealIP)
-	r.Use(middleware.Logger)
-	r.Use(middleware.Recoverer)
+	r.Use(logger.RequestLogger)
+
 	r.Post("/", shortingURL)
 	r.Get("/{shorturl}", getURL)
 
